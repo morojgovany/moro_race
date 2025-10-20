@@ -25,9 +25,10 @@ createApp({
                     this.serverOffset = Number.isFinite(serverTime) ? serverTime * 1000 - performance.now() : 0;
                     const startTime = Number(data.startTime);
                     this.startTime = Number.isFinite(startTime) ? startTime * 1000 : null;
-                    this.isVisible = this.startTime !== null;
-                    if (this.isVisible) {
-                        this.update();
+                    if (this.isCountDownActive) {
+                        this.isVisible = false;
+                    } else {
+                        this.startTimerDisplay();
                     }
                     break;
                 case "hide":
@@ -62,6 +63,7 @@ createApp({
                             this.countdown = 3;
                             this.isCountDownActive = false;
                             $("#start").css('textShadow', '#000000 10px 5px');
+                            this.startTimerDisplay();
                         }
                     }, 1000);
                     break;
@@ -70,11 +72,19 @@ createApp({
                     break;
             }
         },
+        startTimerDisplay() {
+            if (this.startTime === null) {
+                this.isVisible = false;
+                return;
+            }
+            this.isVisible = true;
+            this.update();
+        },
         update() {
             if (!this.isVisible) return;
             const now = performance.now() + this.serverOffset;
             let diff;
-            if (!this.startTime) return;
+            if (this.startTime === null) return;
             diff = Math.max(0, now - this.startTime);
             const totalSeconds = Math.floor(diff / 1000);
             const hours = Math.floor(totalSeconds / 3600);
