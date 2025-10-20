@@ -21,10 +21,14 @@ createApp({
             const data = event.data;
             switch (data.action) {
                 case "showTimer":
-                    this.serverOffset = data.serverTime * 1000 - performance.now();
-                    this.startTime = typeof data.startTime === "number" ? data.startTime * 1000 : null;
-                    this.isVisible = true;
-                    this.update();
+                    const serverTime = Number(data.serverTime);
+                    this.serverOffset = Number.isFinite(serverTime) ? serverTime * 1000 - performance.now() : 0;
+                    const startTime = Number(data.startTime);
+                    this.startTime = Number.isFinite(startTime) ? startTime * 1000 : null;
+                    this.isVisible = this.startTime !== null;
+                    if (this.isVisible) {
+                        this.update();
+                    }
                     break;
                 case "hide":
                     this.isVisible = false;
