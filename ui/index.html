@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link href="style.css" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <div id="timer" ref="timer" v-if="isVisible">{{ timer }}</div>
+      <div id="start" v-if="isCountDownActive">
+        {{ countdown > 0 ? countdown : 'GO !'}}
+      </div>
+    </div>
+    <script src="nui://game/ui/jquery.js" type="text/javascript"></script>
+    <script src="vendor/vue.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
