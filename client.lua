@@ -66,7 +66,7 @@ Citizen.CreateThread(function()
     while true do
         local t = 1000
         if drawMarkerOn then
-            Citizen.InvokeNative(0x2A32FAA57B937173, 0x94FDAE17, Config.blip.coords.x, Config.blip.coords.y, Config.blip.coords.z - 1.0, 0, 0, 0, 0, 0, 0, 1.5, 1.5, 0.4, 255, 255, 255, 80, 0, 0, 2, 0, 0, 0, 0)
+            Citizen.InvokeNative(0x2A32FAA57B937173, 0x94FDAE17, Config.blip.coords.x, Config.blip.coords.y, Config.blip.coords.z - 1.0, 0, 0, 0, 0, 0, 0, 4.5, 4.5, 0.4, 255, 255, 255, 80, 0, 0, 2, 0, 0, 0, 0)
             t = 0
         end
         Wait(t)
@@ -229,7 +229,7 @@ Citizen.CreateThread(function()
         else
             drawMarkerOn = false
         end
-        if dist < 2.0 and not raceStarted then
+        if dist < 4.0 and not raceStarted then
             wait = 0
             PromptSetActiveGroupThisFrame(promptGroup, Config.promptGroupName)
             if not isRegistered then
@@ -238,11 +238,23 @@ Citizen.CreateThread(function()
                 if Citizen.InvokeNative(0xC92AC953F0A982AE, registerPrompt) then
                     if Config.bringOwnMount then
                         local mount = GetMount(ped)
-                        if mount and DoesEntityExist(mount) then
+                        if not mount or mount == -1 then
+                            mount = GetLastMount(ped)
+                        end
+                        if not mount or mount == -1 then
+                            mount = GetMountOwnedByPlayer(ped)
+                        end
+                        if mount and DoesEntityExist(mount) and #(GetEntityCoords(mount) - GetEntityCoords(ped)) < 5.0 then
                             TriggerServerEvent('moro_race:register')
                             isRegistered = true
                             Config.notification({
                                 message = Config.messages.registerSuccess,
+                                duration = 5000,
+                                label = Config.promptGroupName,
+                            })
+                        elseif mount and DoesEntityExist(mount) and #(GetEntityCoords(mount) - GetEntityCoords(ped)) > 5.0 then
+                            Config.notification({
+                                message = Config.messages.mountTooFar,
                                 duration = 5000,
                                 label = Config.promptGroupName,
                             })
@@ -312,7 +324,7 @@ AddEventHandler('moro_race:startRace', function(savedCheckpoints, spawnIndex, to
     local spawnCoords, spawnHeading = calculateStartData(spawnIndex, totalParticipants)
     spawnedRaceMount = false
     if not Config.bringOwnMount then
-        local model = Config.mountType or `a_c_donkey_01`
+        local model = Config.mountType
         if type(model) == 'string' then
             model = joaat(model)
         end

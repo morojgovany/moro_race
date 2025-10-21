@@ -2,6 +2,7 @@ Config = {}
 Config.devMode = false
 Config.bringOwnMount = false
 Config.mountType = `a_c_donkey_01`
+Config.playerLimit = 4
 Config.raceTimeout = 300 -- Seconds before the race automatically ends (set to 0 to disable)
 Config.startCoords = vector3(1969.41, -4741.98, 41.94)
 Config.startSpacing = 2.5
@@ -19,18 +20,20 @@ Config.messages = {
     raceFinished = "Tu as terminé la course. Temps: %.2f secondes",
     raceWinner = "La course est terminée ! %s est le vainqueur !",
     raceTimeout = "Le temps imparti est écoulé, la course est terminée.",
+    mountTooFar = "Votre cheval est trop loin.",
+    playerLimitReached = "Le nombre maximum de participants a été atteint.",
 }
 Config.notification = function(data)
     if type(data) ~= 'table' then return end
     local message = data.message
     if not message then return end
     local duration = data.duration or 5000
-    local label = data.label or Config.promptGroupName or 'Notification'
+    local label = data.label or Config.promptGroupName or 'Notification' -- if your systems needs labels
     if IsDuplicityVersion() then -- This is the server events
         local target = data.target
         if target then
             -- Change it by your notification system (server side)
-            TriggerClientEvent('vorp:TipRight', message, 5000)
+            TriggerClientEvent('vorp:TipRight', target, message, 5000)
         end
     else
         -- Change it by your notification system (client side)

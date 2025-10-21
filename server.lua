@@ -70,9 +70,20 @@ end
 
 RegisterNetEvent('moro_race:register')
 AddEventHandler('moro_race:register', function()
+    local _source = source
+    if not _source then
+        return
+    end
     if raceStarted then return end
-    local _source = tonumber(source)
-    if not _source then return end
+    if Config.playerLimit and Config.playerLimit > 0 and #registeredPlayers >= Config.playerLimit then
+        Config.notification({
+            target = _source,
+            message = Config.messages.playerLimitReached,
+            duration = 5000,
+            label = Config.promptGroupName,
+        })
+        return
+    end
     for i = 1, #registeredPlayers do
         if registeredPlayers[i] == _source then
             return
