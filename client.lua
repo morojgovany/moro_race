@@ -8,6 +8,7 @@ local registerPrompt = nil
 local startPrompt = nil
 local isRegistered = false
 local raceStartTime = 0
+local timeoutTriggered = false
 local raceMount = nil
 local spawnedRaceMount = false
 local blip = nil
@@ -116,6 +117,35 @@ local function getNextCheckpointId(checkpoints)
         end
     end
     return #Config.raceCoords + 1
+end
+
+
+local function startRaceTimeoutWatcher()
+    local configuredTimeout = tonumber(Config.raceTimeout)
+    if not configuredTimeout or configuredTimeout <= 0 then
+        return
+    end
+    local timeoutMs = math.floor(configuredTimeout * 1000)
+    if timeoutMs <= 0 then
+        return
+    end
+    timeoutTriggered = false
+    Citizen.CreateThread(function()
+        while raceStarted do
+            if timeoutTriggered then
+                break
+            end
+            if raceStartTime > 0 then
+                local elapsed = GetGameTimer() - raceStartTime
+                if elapsed >= timeoutMs then
+                    timeoutTriggered = true
+                    TriggerServerEvent('moro_race:timeoutReached')
+                    break
+                end
+            end
+            Wait(500)
+        end
+    end)
 end
 
 
@@ -277,6 +307,8 @@ AddEventHandler('moro_race:startRace', function(savedCheckpoints, spawnIndex, to
     isRegistered = false
     passedCheckpoints = savedCheckpoints or {}
     nextCheckpoint = getNextCheckpointId(passedCheckpoints)
+    timeoutTriggered = false
+    raceStartTime = 0
     local spawnCoords, spawnHeading = calculateStartData(spawnIndex, totalParticipants)
     spawnedRaceMount = false
     if not Config.bringOwnMount then
@@ -313,6 +345,7 @@ AddEventHandler('moro_race:startRace', function(savedCheckpoints, spawnIndex, to
         end
     end
     createCheckpointArrows(nextCheckpoint)
+    startRaceTimeoutWatcher()
     local actualHorse = raceMount or GetMount(PlayerPedId())
     if actualHorse and DoesEntityExist(actualHorse) then
         local freezeDuration = 3000
@@ -407,12 +440,23 @@ end)
 
 
 RegisterNetEvent('moro_race:stopRace')
-AddEventHandler('moro_race:stopRace', function()
+AddEventHandler('moro_race:stopRace', function(reason)
+    local timedOut = reason == 'timeout'
+    local wasRacing = raceStarted
     raceStarted = false
     nextCheckpoint = 1
     passedCheckpoints = {}
     isRegistered = false
+    timeoutTriggered = false
+    raceStartTime = 0
     stopTimer()
+    if timedOut and wasRacing and Config.messages and Config.messages.raceTimeout then
+        Config.notification({
+            message = Config.messages.raceTimeout,
+            duration = 5000,
+            label = Config.promptGroupName,
+        })
+    end
     if spawnedRaceMount and raceMount and DoesEntityExist(raceMount) then
         DeleteEntity(raceMount)
     end
@@ -469,6 +513,8 @@ AddEventHandler('onResourceStop', function(resourceName)
         nextCheckpoint = 1
         passedCheckpoints = {}
         isRegistered = false
+        timeoutTriggered = false
+        raceStartTime = 0
         stopTimer()
         if spawnedRaceMount and raceMount and DoesEntityExist(raceMount) then
             DeleteEntity(raceMount)

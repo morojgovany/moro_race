@@ -2,6 +2,7 @@ Config = {}
 Config.devMode = false
 Config.bringOwnMount = false
 Config.mountType = `a_c_donkey_01`
+Config.raceTimeout = 300 -- Seconds before the race automatically ends (set to 0 to disable)
 Config.startCoords = vector3(1969.41, -4741.98, 41.94)
 Config.startSpacing = 2.5
 Config.registerKey = 0xDFF812F9 -- E
@@ -17,6 +18,7 @@ Config.messages = {
     raceStarting = "La course commence !",
     raceFinished = "Tu as terminé la course. Temps: %.2f secondes",
     raceWinner = "La course est terminée ! %s est le vainqueur !",
+    raceTimeout = "Le temps imparti est écoulé, la course est terminée.",
 }
 Config.notification = function(data)
     if type(data) ~= 'table' then return end

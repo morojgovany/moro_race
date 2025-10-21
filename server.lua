@@ -5,7 +5,6 @@ local registeredPlayers = {}
 local raceParticipants = {}
 local totalParticipants = 0
 local finishedParticipants = 0
-
 local function resetRaceData()
     passedCheckpoints = {}
     raceParticipants = {}
@@ -13,9 +12,9 @@ local function resetRaceData()
     finishedParticipants = 0
 end
 
-local function finalizeRace()
+local function finalizeRace(reason)
     if raceStarted or totalParticipants > 0 then
-        TriggerClientEvent('moro_race:stopRace', -1)
+        TriggerClientEvent('moro_race:stopRace', -1, reason)
     end
     raceStarted = false
     raceWinnerAnnounced = false
@@ -28,7 +27,7 @@ local function checkRaceCompletion()
         return
     end
     if totalParticipants > 0 and finishedParticipants >= totalParticipants then
-        finalizeRace()
+        finalizeRace('finished')
     end
 end
 
@@ -134,6 +133,18 @@ AddEventHandler('moro_race:playerMissingMount', function()
         passedCheckpoints[playerId] = nil
         checkRaceCompletion()
     end
+end)
+
+RegisterNetEvent('moro_race:timeoutReached')
+AddEventHandler('moro_race:timeoutReached', function()
+    local playerId = tonumber(source)
+    if not playerId or not raceStarted then
+        return
+    end
+    if not raceParticipants[playerId] then
+        return
+    end
+    finalizeRace('timeout')
 end)
 
 AddEventHandler('playerDropped', function()
