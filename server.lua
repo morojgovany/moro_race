@@ -120,7 +120,7 @@ AddEventHandler('moro_race:checkpoint', function(id)
     TriggerClientEvent('moro_race:checkpointPassed', playerId, id)
     if id == #Config.raceCoords then
         if not raceWinnerAnnounced then
-            local playerName = GetPlayerName(playerId) or 'Unknown'
+            local playerName = GetPlayerName(playerId) or 'Unknown' -- Adapt to your framework if needed
             Config.notification({
                 target = playerId,
                 message = Config.messages.raceWinner:format(playerName),

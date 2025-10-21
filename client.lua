@@ -551,6 +551,7 @@ AddEventHandler('onResourceStop', function(resourceName)
 end)
 
 if Config.devMode then
+    TriggerEvent('chat:addSuggestion', '/addCp', 'Add a checkpoint on your position', {})
     RegisterCommand('addCp', function()
         local playerPed = PlayerPedId()
         local coords = GetEntityCoords(playerPed)
@@ -559,16 +560,18 @@ if Config.devMode then
         print(snippet)
     end)
 
+    TriggerEvent('chat:addSuggestion', '/addArrow', 'Add a checkpoint on your position', {
+        { name = 'direction', help = "'f' for forward, 'b' for backward" }
+    })
     RegisterCommand('addArrow', function(source, args)
         local direction = args[1]
-        if direction ~= 'left' and direction ~= 'right' then
-            print('You must set an arrow direction')
-            return
+        if direction ~= 'f' and direction ~= 'b' then
+            direction = 'f'
         end
         local playerPed = PlayerPedId()
         local coords = GetEntityCoords(playerPed)
         local heading = GetEntityHeading(playerPed)
-        local pitch = direction == 'left' and 90.0 or -90.0
+        local pitch = direction == 'f' and 90.0 or -90.0
         local snippet = string.format("{ coords = vector4(%.2f, %.2f, %.2f, %.2f), pitch = %.1f, roll = 0.0 },", coords.x, coords.y, coords.z, heading, pitch)
         print(snippet)
     end)
