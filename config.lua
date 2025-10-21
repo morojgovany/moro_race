@@ -7,15 +7,17 @@ Config.raceCoords = {
         }
     },
     [2] = {
-        coords = vector4(678.53, -20.87, 156.07, 5.92),
+        coords = vector4(650.45, -101.98, 149.87, 337.47),
         arrows = {
             { coords = vector4(667.92, -26.96, 153.51, 215.28), pitch = -90.0, roll = 0.0 },
         }
     },
-
 }
+
 Config.mountType = `a_c_donkey_01`
 Config.playerLimit = 4
+Config.fireOnFinish = true
+Config.fireOffset = 5.0 -- add explosion this many units on the left and right of the finish line
 Config.raceTimeout = 300 -- Seconds before the race automatically ends (set to 0 to disable)
 Config.startCoords = vector3(660.39, -108.31, 149.95)
 Config.startSpacing = 2.5

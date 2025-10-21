@@ -55,9 +55,9 @@ local function calculateStartData(spawnIndex, totalParticipants)
     local spacing = Config.startSpacing or 2.5
     local offset = ((index - 1) - (participants - 1) / 2) * spacing
     local spawnCoords = vector3(
-        startCoords.x + (rightX * offset),
-        startCoords.y + (rightY * offset),
-        startCoords.z
+            startCoords.x + (rightX * offset),
+            startCoords.y + (rightY * offset),
+            startCoords.z
     )
     return spawnCoords, heading
 end
@@ -119,7 +119,6 @@ local function getNextCheckpointId(checkpoints)
     return #Config.raceCoords + 1
 end
 
-
 local function startRaceTimeoutWatcher()
     local configuredTimeout = tonumber(Config.raceTimeout)
     if not configuredTimeout or configuredTimeout <= 0 then
@@ -148,10 +147,11 @@ local function startRaceTimeoutWatcher()
     end)
 end
 
-
 local function createArrow(checkpointIndex, arrowIndex)
     local arrowData = Config.raceCoords[checkpointIndex].arrows[arrowIndex]
-    if not arrowData then return end
+    if not arrowData then
+        return
+    end
     local ptfx = 'scr_net_player_signal'
     local ptfxName = 'scr_net_player_signal'
     local coords = arrowData.coords
@@ -193,7 +193,9 @@ end
 
 local function createFireRing(index)
     local coords = Config.raceCoords[index].coords
-    if not coords then return end
+    if not coords then
+        return
+    end
     local ptfx = 'scr_net_target_races'
     local ptfxName = 'scr_net_target_fire_ring_mp'
     local fireRingCoords = vector3(coords.x, coords.y, coords.z)
@@ -368,12 +370,10 @@ AddEventHandler('moro_race:startRace', function(savedCheckpoints, spawnIndex, to
     end
     local freezeDuration = 3000
     TriggerEvent('moro_race:startCountDown')
-    FreezeEntityPosition(playerPed, true)
     if actualHorse and DoesEntityExist(actualHorse) then
         FreezeEntityPosition(actualHorse, true)
     end
     SetTimeout(freezeDuration, function()
-        FreezeEntityPosition(playerPed, false)
         if actualHorse and DoesEntityExist(actualHorse) then
             FreezeEntityPosition(actualHorse, false)
         end
@@ -450,7 +450,6 @@ AddEventHandler('moro_race:startCountDown', function()
     startTimer()
 end)
 
-
 RegisterNetEvent('moro_race:stopRace')
 AddEventHandler('moro_race:stopRace', function(reason)
     local timedOut = reason == 'timeout'
@@ -469,11 +468,6 @@ AddEventHandler('moro_race:stopRace', function(reason)
             label = Config.promptGroupName,
         })
     end
-    if spawnedRaceMount and raceMount and DoesEntityExist(raceMount) then
-        DeleteEntity(raceMount)
-    end
-    raceMount = nil
-    spawnedRaceMount = false
     for index in pairs(fireRings) do
         deleteFireRing(index)
     end
@@ -484,6 +478,32 @@ AddEventHandler('moro_race:stopRace', function(reason)
         end
     end
     arrows = {}
+    if Config.fireOnFinish then
+        local finishCoords = Config.raceCoords[#Config.raceCoords]
+        if finishCoords and finishCoords.coords then
+            local headingRad = math.rad(finishCoords.coords.w)
+            local rightVector = vector3(
+                    math.cos(headingRad - math.pi),
+                    math.sin(headingRad - math.pi),
+                    0.0
+            )
+            local finishLeftOffset = vector3(
+                    finishCoords.coords.x - rightVector.x * Config.fireOffset,
+                    finishCoords.coords.y - rightVector.y * Config.fireOffset,
+                    finishCoords.coords.z
+            )
+
+            local finishRightOffset = vector3(
+                    finishCoords.coords.x + rightVector.x * Config.fireOffset,
+                    finishCoords.coords.y + rightVector.y * Config.fireOffset,
+                    finishCoords.coords.z
+            )
+            AddExplosion(finishLeftOffset.x, finishLeftOffset.y, finishLeftOffset.z, 18, 1.0, true, false, 2.0)
+            AddExplosion(finishLeftOffset.x, finishLeftOffset.y, finishLeftOffset.z + 10.0, 28, 0.1, true, false, 2.0)
+            AddExplosion(finishRightOffset.x, finishRightOffset.y, finishRightOffset.z, 18, 1.0, true, false, 2.0)
+            AddExplosion(finishRightOffset.x, finishRightOffset.y, finishRightOffset.z + 10.0, 28, 0.1, true, false, 2.0)
+        end
+    end
 end)
 
 RegisterNetEvent('moro_race:checkpointPassed')
@@ -501,6 +521,7 @@ AddEventHandler('moro_race:checkpointPassed', function(id)
     PlaySoundFrontend("CHECKPOINT_PERFECT", "HUD_MINI_GAME_SOUNDSET", true, 0)
     if id == #Config.raceCoords then
         local total = (GetGameTimer() - raceStartTime) / 1000
+        Wait(250)
         stopTimer()
         Config.notification({
             message = Config.messages.raceFinished:format(total),
