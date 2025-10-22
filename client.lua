@@ -385,7 +385,7 @@ AddEventHandler('moro_race:startRace', function(savedCheckpoints, spawnIndex, to
     end)
     Citizen.CreateThread(function()
         while raceStarted do
-            local playerPed = PlayerPedId()
+            playerPed = PlayerPedId()
             local playerCoords = GetEntityCoords(playerPed)
             if Config.raceCoords[nextCheckpoint] and Config.raceCoords[nextCheckpoint].arrows then
                 for arrowIndex, data in pairs(Config.raceCoords[nextCheckpoint].arrows) do
@@ -478,7 +478,7 @@ AddEventHandler('moro_race:stopRace', function(reason)
         end
     end
     arrows = {}
-    if Config.fireOnFinish then
+    if Config.fireOnFinish and not timedOut then
         local finishCoords = Config.raceCoords[#Config.raceCoords]
         if finishCoords and finishCoords.coords then
             local headingRad = math.rad(finishCoords.coords.w)

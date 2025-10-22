@@ -122,7 +122,6 @@ AddEventHandler('moro_race:checkpoint', function(id)
         if not raceWinnerAnnounced then
             local playerName = GetPlayerName(playerId) or 'Unknown' -- Adapt to your framework if needed
             Config.notification({
-                target = playerId,
                 message = Config.messages.raceWinner:format(playerName),
                 duration = 5000,
                 label = Config.promptGroupName,

@@ -1,6 +1,6 @@
 Config = {}
 Config.devMode = true
-Config.bringOwnMount = false
+Config.bringOwnMount = true
 Config.raceCoords = {
     [1] = { coords = vector4(671.29, -77.04, 151.14, 332.98), arrows = {
         { coords = vector4(662.37, -103.65, 150.04, 331.56), pitch = 90.0, roll = 0.0 },
@@ -16,7 +16,7 @@ Config.raceCoords = {
 
 Config.mountType = `a_c_donkey_01`
 Config.playerLimit = 4
-Config.fireOnFinish = true
+Config.fireOnFinish = false
 Config.fireOffset = 5.0 -- add explosion this many units on the left and right of the finish line
 Config.raceTimeout = 300 -- Seconds before the race automatically ends (set to 0 to disable)
 Config.startCoords = vector3(660.39, -108.31, 149.95)
@@ -46,7 +46,8 @@ Config.notification = function(data)
     local label = data.label or Config.promptGroupName or 'Notification' -- if your systems needs labels
     if IsDuplicityVersion() then -- This is the server events
         local target = data.target
-        if target then
+        if not target then
+            target = -1 -- vorp typed
             -- Change it by your notification system (server side)
             TriggerClientEvent('vorp:TipRight', target, message, 5000)
         end
