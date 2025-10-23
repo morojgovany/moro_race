@@ -1,28 +1,33 @@
 Config = {}
-Config.devMode = false
-Config.bringOwnMount = false
+Config.devMode = false -- set to true for debug prints and auto copy in clipboard
+Config.bringOwnMount = false -- set to true if players bring their own mount (must mount it to begin)
 Config.mountType = `a_c_donkey_01` -- must be set if bringOwnMount is false
+-- Use /addCp to copy the config coords to clipboard (also shows in console if devMode is true)
+-- Use `/addArrow f` or `/addArrow b` (for backward and forward arrow) to add arrows to a checkpoint
+-- You can set as many checkpoints/arrows as you want
 Config.raceCoords = {
-    [1] = { coords = vector4(671.29, -77.04, 151.14, 332.98), arrows = {
-        { coords = vector4(662.37, -103.65, 150.04, 331.56), pitch = 90.0, roll = 0.0 },
-        }
-    },
-    [2] = {
-        coords = vector4(650.45, -101.98, 149.87, 337.47),
-        arrows = {
-            { coords = vector4(667.92, -26.96, 153.51, 215.28), pitch = -90.0, roll = 0.0 },
-        }
-    },
+    [1] = {coords = vector4(-6236.54, -3798.51, -18.12, 129.61), arrows = {
+        { coords = vector4(-6230.55, -3799.56, -17.64, 125.82), pitch = 90.0, roll = 0.0 },
+    }},
+    [2] = { coords = vector4(-6265.50, -3812.26, -25.50, 97.10), arrows = {
+        { coords = vector4(-6253.86, -3813.85, -23.31, 284.49), pitch = -90.0, roll = 0.0 },
+        { coords = vector4(-6254.59, -3805.47, -22.38, 128.13), pitch = 90.0, roll = 0.0 },
+    } },
+    [3] = { coords = vector4(-6223.66, -3788.67, -17.46, 310.75), arrows = {
+        { coords = vector4(-6249.28, -3812.46, -22.09, 108.15), pitch = -90.0, roll = 0.0 },
+    } },
 }
 
 Config.playerLimit = 4 -- set to 0 for unlimited players
 Config.fireOnFinish = false -- set to true to enable explosions on finish line
 Config.fireOffset = 5.0 -- add explosion this many units on the left and right of the finish line
 Config.raceTimeout = 300 -- Seconds before the race automatically ends (set to 0 to disable)
-Config.startCoords = vector3(660.39, -108.31, 149.95)
+Config.startCoords = vector3(-6223.96, -3789.82, -17.44) -- prompt coords to register
 Config.startSpacing = 2.5 -- distance between players at start
+-- be careful / some keys are unavailable when on horse (if you set bringOwnMount to true)
 Config.registerKey = 0xE30CD707 -- R
 Config.startKey = 0xC7B5340A -- Enter
+-- translations
 Config.prompts = {
     register = "Register",
     start = "Start race",
@@ -38,6 +43,7 @@ Config.messages = {
     mountTooFar = "Your horse is too far.",
     playerLimitReached = "The maximum number of participants has been reached.",
 }
+-- notification function, change it to fit your notification system
 Config.notification = function(data)
     if type(data) ~= 'table' then return end
     local message = data.message
@@ -57,6 +63,7 @@ Config.notification = function(data)
     end
     return duration
 end
+-- blip config https://github.com/femga/rdr3_discoveries/blob/a4b4bcd5a3006b0c1434b03e4095d038164932f7/useful_info_from_rpfs/textures/blips_mp/README.md
 Config.blip = {
     enable = true,
     coords = Config.startCoords,
