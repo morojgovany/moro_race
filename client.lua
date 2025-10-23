@@ -579,6 +579,10 @@ if Config.devMode then
         local heading = GetEntityHeading(playerPed)
         local snippet = string.format("{ coords = vector4(%.2f, %.2f, %.2f, %.2f), arrows = {} },", coords.x, coords.y, coords.z, heading)
         print(snippet)
+        SendNUIMessage({
+            action = 'copyToClipboard',
+            text = snippet,
+        })
     end)
 
     TriggerEvent('chat:addSuggestion', '/addArrow', 'Add a checkpoint on your position', {
@@ -595,5 +599,9 @@ if Config.devMode then
         local pitch = direction == 'f' and 90.0 or -90.0
         local snippet = string.format("{ coords = vector4(%.2f, %.2f, %.2f, %.2f), pitch = %.1f, roll = 0.0 },", coords.x, coords.y, coords.z, heading, pitch)
         print(snippet)
+        SendNUIMessage({
+            action = 'copyToClipboard',
+            text = snippet,
+        })
     end)
 end
